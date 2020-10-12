@@ -1,4 +1,5 @@
 from atlassian import Bitbucket
+import logging
 
 
 class Server:
@@ -47,11 +48,28 @@ class Server:
         """
         Opens a new pull request in a repository.
         """
-        self.open_pr(project, repo, src_branch, project, repo, dst_branch, title, desc, reviewers)
+        self.open_pr(project, repo, src_branch, project,
+                     repo, dst_branch, title, desc, reviewers)
 
-    def open_pr(self, src_project, src_repo, src_branch, dst_project, dst_repo, dst_branch, title, desc, reviewers=None):
+    def open_pr(self, src_project, src_repo, src_branch, dst_project, dst_repo, dst_branch, title,
+                desc, reviewers=None):
         """
         Opens a new pull request.
         """
-        self.api.open_pull_request(src_project, src_repo, dst_project,
-                                   dst_repo, src_branch, dst_branch, title, desc, reviewers)
+        logging.info("Attempting to open a pull request:")
+        logging.info(title)
+        logging.info(desc)
+        if self._confirm("Open pull request " + src_project + "/" + src_repo + "/" + src_branch +
+                         "->" + dst_project + "/" + dst_repo + "/" + dst_branch):
+            self.api.open_pull_request(src_project, src_repo, dst_project,
+                                       dst_repo, src_branch, dst_branch, title, desc, reviewers)
+            print("Success")
+        else:
+            print("Action aborted")
+
+    def _confirm(question):
+        """
+        Asks for user decision on question.
+        """
+        reply = str(input(question + " (y/n): ")).lower().strip()
+        return reply[0] == "y"
