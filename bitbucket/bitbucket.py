@@ -2,12 +2,15 @@
 
 import argparse
 import logging
+import os
 
 from server import Server
 from config import Config
+from repo import GitRepo
 
 
-CONFIGFILE = os.path.join(os.path.expanduser("~"), ".config", "bitbucket-cli", "config.json")
+CONFIGFILE = os.path.join(os.path.expanduser(
+    "~"), ".config", "bitbucket-cli", "config.json")
 
 if __name__ == "__main__":
     # TODO set to warning
@@ -24,18 +27,27 @@ if __name__ == "__main__":
                         help="URL for BitBucket server. If not provided, will be read from config file.")
 
     # create subparsers
-    subparsers = parser.add_subparsers(dest="command")
+    subparser_command = parser.add_subparsers(dest="command")
     # project subparser
-    parser_project = subparsers.add_parser("project")
-    parser_project.add_argument("action", choices=["list"])
+    parser_project = subparser_command.add_parser("project")
+    parser_project_action = parser_project.add_subparsers(dest="action")
+    parser_project_action_list = parser_project_action.add_parser("list")
+
     # pull request subparser
-    parser_pr = subparsers.add_parser("pr")
-    parser_pr.add_argument("action", choices=["approved", "open"])
-    parser_pr.add_argument("project")
-    parser_pr.add_argument("repository")
-    parser_pr.add_argument("--prid", metavar="pr-id", required=False)
-    parser_pr.add_argument("--src", required=False)
-    parser_pr.add_argument("--dst", required=False)
+    parser_pr = subparser_command.add_parser("pr")
+    parser_pr_action = parser_pr.add_subparsers(dest="action")
+    parser_pr_action_approved = parser_pr_action.add_parser("approved")
+    parser_pr_action_open = parser_pr_action.add_parser("open")
+    parser_pr_action_approved.add_argument(
+        "--prid", metavar="pr-id", required=True, help="ID of pull request")
+    parser_pr_action_open.add_argument("--src", required=False,
+                                       help="Source branch, auto detected when not provided")
+    parser_pr_action_open.add_argument(
+        "--dst", required=False, help="Destination branch")
+    parser_pr_action_open.add_argument("--title", required=False,
+                                       help="Title of the pull request, auto detected when not provided")
+    parser_pr_action_open.add_argument("--desc", required=False,
+                                       help="Description of the pull request, auto detected when not provided")
 
     # parse arguments
     parsed = parser.parse_args()
@@ -67,8 +79,21 @@ if __name__ == "__main__":
         if parsed.action == "list":
             print(server.project_list())
     if parsed.command == "pr":
+        # create repo object
+        repo = GitRepo()
+        project = repo.get_remote_project()
+        repo_name = repo.get_repo_name()
         if parsed.action == "approved":
-            print(server.pr_approved(parsed.project,
-                                     parsed.repository, parsed.prid))
+            print(server.pr_approved(project, repo_name, parsed.prid))
         if parsed.action == "open":
-            self.server.open_pr_in_repo(parsed.project, parsed.repository, parsed.src, parsed.dst, )
+            # get src branch from repo
+            src_branch = repo.get_branch_name()
+            title = repo.get_last_commit_title()
+            desc = repo.get_last_commit_desc()
+            if parsed.src is not None:
+                source_branch = parsed.src
+            if parsed.title is not None:
+                title = parsed.title
+            if parsed.desc is not None:
+                desc = parsed.desc
+            server.open_pr_in_repo(project, repo_name, src_branch, parsed.dst, title, desc, None)
