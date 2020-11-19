@@ -3,47 +3,56 @@ import os
 
 
 class GitRepo:
-    """
-    Represents a git repository in the working directory.
-    """
+    """Represents a git repository in the working directory."""
 
     def __init__(self):
+        """C'tor."""
         self.repo = Repo(os.getcwd())
 
-    def get_branch_name(self):
+    def get_branch_name(self) -> str:
         """
-        Returns the name of the current branch.
+        Return the current branch name.
+
+        :return: Current branch name string.
         """
         return self.repo.active_branch.name
 
-    def get_repo_name(self):
+    def get_repo_name(self) -> str:
         """
-        Returns the name of the repository on the origin remote, if the URL follows the scheme
+        Return the current repository name if the URL follows the scheme
         [...]/project/repo.git.
+
+        :return: Name of the repository on the origin remote
         """
         remote = self.repo.remote().url
-        return remote.rsplit('/', 1)[-1][:-4]
+        return remote.rsplit("/", 1)[-1][:-4]
 
-    def get_remote_project(self):
+    def get_remote_project(self) -> str:
         """
-        Returns the name of the project on the origin remote, if the URL follows the scheme
-        [...]/project/repo.git.
+        Return name of the project on the origin remote, if the URL follows the
+        scheme [...]/project/repo.git.
+
+        :return: Name of the project on the origin remote
         """
         remote = self.repo.remote().url
-        return remote.rsplit('/', 2)[-2]
+        return remote.rsplit("/", 2)[-2]
 
-    def get_last_commit_title(self):
+    def get_last_commit_title(self) -> str:
         """
-        Returns the title (first line) of the last commit message in the current branch.
-        """
-        return self.repo.commit('HEAD').message.splitlines()[0]
+        Return the title (first line) of the last commit message in the current branch.
 
-    def get_last_commit_desc(self):
+        :return: Commit title
         """
-        Returns the description (lines 2 ff.) of the last commit message in the current branch.
-        Returns an empty string of no description is available.
+        return self.repo.commit("HEAD").message.splitlines()[0]
+
+    def get_last_commit_desc(self) -> str:
         """
-        commit_msg = self.repo.commit('HEAD').message.splitlines()[0]
+        Return the description (lines 2 ff.) of the last commit message in the current
+        branch. Empty string of no description is available.
+
+        :return: Commit description
+        """
+        commit_msg = self.repo.commit("HEAD").message.splitlines()[0]
         if len(commit_msg) > 1:
             return "\n".join(commit_msg[1:])
         return ""

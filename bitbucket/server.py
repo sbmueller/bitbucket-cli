@@ -1,37 +1,40 @@
 from atlassian import Bitbucket
 import logging
+from typing import List
 
 
 class Server:
     """
-    Class that represents the BitBucket server. Has methods to perform queries on the server.
+    Class that represents the BitBucket server.
+
+    Has methods to perform queries on the server.
     """
 
-    def __init__(self, url, user, password):
+    def __init__(self, url: str, user: str, password: str):
         """
         C'tor of Server.
 
-        :param: url URL of the BitBucket server
-        :param: user Login username
-        :param: password Login password or token
+        :param str url: URL of the BitBucket server
+        :param str user: Login username
+        :param str password: Login password or token
         """
         self.server_url = url
         self.user = user
         self.password = password
         self.api = Bitbucket(self.server_url, self.user, self.password)
 
-    def project_list(self):
+    def project_list(self) -> List[str]:
         """
-        Gets the list of projects from the server.
+        Get the list of projects from the server.
 
-        :returns: List of project names
+        :return: List of project names
         """
         query = self.api.project_list()
         return query
 
-    def pr_approved(self, project, repo, pr):
+    def pr_approved(self, project: str, repo: str, pr: int) -> bool:
         """
-        Returns True if at least one reviewer approved the pull request, otherwise False.
+        Return True if at least one reviewer approved the pull request, otherwise False.
 
         :param: project Project ID of the repository
         :param: repo Repository slug of the pull request
@@ -44,32 +47,90 @@ class Server:
                 return True
         return False
 
-    def open_pr_in_repo(self, project, repo, src_branch, dst_branch, title, desc, reviewers=None):
+    def open_pr_in_repo(
+        self,
+        project: str,
+        repo: str,
+        src_branch: str,
+        dst_branch: str,
+        title: str,
+        desc: str,
+        reviewers: str = None,
+    ):
         """
-        Opens a new pull request in a repository.
-        """
-        self.open_pr(project, repo, src_branch, project,
-                     repo, dst_branch, title, desc, reviewers)
+        Open a new pull request in a repository.
 
-    def open_pr(self, src_project, src_repo, src_branch, dst_project, dst_repo, dst_branch, title,
-                desc, reviewers=None):
+        :param project: Project name
+        :param repo: Repository name
+        :param src_branch: Source branch name
+        :param dst_branch: Destination branch name
+        :param title: Title of the pull request
+        :param desc: Description text of the pull request
+        :param reviewers: UUIDs of reviewers (default None)
         """
-        Opens a new pull request.
+        self.open_pr(
+            project, repo, src_branch, project, repo, dst_branch, title, desc, reviewers
+        )
+
+    def open_pr(
+        self,
+        src_project: str,
+        src_repo: str,
+        src_branch: str,
+        dst_project: str,
+        dst_repo: str,
+        dst_branch: str,
+        title: str,
+        desc: str,
+        reviewers: str = None,
+    ):
+        """
+        Open a new pull request.
+
+        :param src_project: Source project name
+        :param src_repo: Source repository name
+        :param src_branch: Source branch name
+        :param dst_project: Destination project name
+        :param dst_repo: Destination repository name
+        :param dst_branch: Destination branch name
+        :param title: Title of the pull request
+        :param desc: Description text of the pull request
+        :param reviewers: UUIDs of reviewers (default None)
         """
         logging.info("Attempting to open a pull request:")
         logging.info(title)
         logging.info(desc)
-        if self._confirm("Open pull request " + src_project + "/" + src_repo + "/" + src_branch +
-                         "->" + dst_project + "/" + dst_repo + "/" + dst_branch):
-            self.api.open_pull_request(src_project, src_repo, dst_project,
-                                       dst_repo, src_branch, dst_branch, title, desc, reviewers)
+        if self._confirm(
+            "Open pull request "
+            + src_project
+            + "/"
+            + src_repo
+            + "/"
+            + src_branch
+            + "->"
+            + dst_project
+            + "/"
+            + dst_repo
+            + "/"
+            + dst_branch
+        ):
+            self.api.open_pull_request(
+                src_project,
+                src_repo,
+                dst_project,
+                dst_repo,
+                src_branch,
+                dst_branch,
+                title,
+                desc,
+                reviewers,
+            )
             print("Success")
         else:
             print("Action aborted")
 
-    def _confirm(question):
-        """
-        Asks for user decision on question.
-        """
+    @staticmethod
+    def _confirm(question: str) -> bool:
+        """Ask for user decision on question."""
         reply = str(input(question + " (y/n): ")).lower().strip()
         return reply[0] == "y"

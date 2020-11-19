@@ -9,8 +9,9 @@ from config import Config
 from repo import GitRepo
 
 
-CONFIGFILE = os.path.join(os.path.expanduser(
-    "~"), ".config", "bitbucket-cli", "config.json")
+CONFIGFILE = os.path.join(
+    os.path.expanduser("~"), ".config", "bitbucket-cli", "config.json"
+)
 
 if __name__ == "__main__":
     # TODO set to warning
@@ -19,12 +20,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BitBucket CLI")
 
     # general arguments
-    parser.add_argument("-u", "--user", action="store", required=False,
-                        help="Username for BitBucket. If not provided, will be read from config file.")
-    parser.add_argument("-p", "--passwd", action="store", required=False,
-                        help="Password or token for BitBucket. If not provided, will be read from config file.")
-    parser.add_argument("-s", "--server", action="store", required=False,
-                        help="URL for BitBucket server. If not provided, will be read from config file.")
+    parser.add_argument(
+        "-u",
+        "--user",
+        action="store",
+        required=False,
+        help="Username for BitBucket. If not provided, will be read from config file.",
+    )
+    parser.add_argument(
+        "-p",
+        "--passwd",
+        action="store",
+        required=False,
+        help="Password or token for BitBucket. If not provided, will be read from config file.",
+    )
+    parser.add_argument(
+        "-s",
+        "--server",
+        action="store",
+        required=False,
+        help="URL for BitBucket server. If not provided, will be read from config file.",
+    )
 
     # create subparsers
     subparser_command = parser.add_subparsers(dest="command")
@@ -39,15 +55,24 @@ if __name__ == "__main__":
     parser_pr_action_approved = parser_pr_action.add_parser("approved")
     parser_pr_action_open = parser_pr_action.add_parser("open")
     parser_pr_action_approved.add_argument(
-        "--prid", metavar="pr-id", required=True, help="ID of pull request")
-    parser_pr_action_open.add_argument("--src", required=False,
-                                       help="Source branch, auto detected when not provided")
+        "--prid", metavar="pr-id", required=True, help="ID of pull request"
+    )
     parser_pr_action_open.add_argument(
-        "--dst", required=False, help="Destination branch")
-    parser_pr_action_open.add_argument("--title", required=False,
-                                       help="Title of the pull request, auto detected when not provided")
-    parser_pr_action_open.add_argument("--desc", required=False,
-                                       help="Description of the pull request, auto detected when not provided")
+        "--src", required=False, help="Source branch, auto detected when not provided"
+    )
+    parser_pr_action_open.add_argument(
+        "--dst", required=False, help="Destination branch"
+    )
+    parser_pr_action_open.add_argument(
+        "--title",
+        required=False,
+        help="Title of the pull request, auto detected when not provided",
+    )
+    parser_pr_action_open.add_argument(
+        "--desc",
+        required=False,
+        help="Description of the pull request, auto detected when not provided",
+    )
 
     # parse arguments
     parsed = parser.parse_args()
@@ -96,4 +121,6 @@ if __name__ == "__main__":
                 title = parsed.title
             if parsed.desc is not None:
                 desc = parsed.desc
-            server.open_pr_in_repo(project, repo_name, src_branch, parsed.dst, title, desc, None)
+            server.open_pr_in_repo(
+                project, repo_name, src_branch, parsed.dst, title, desc, None
+            )
