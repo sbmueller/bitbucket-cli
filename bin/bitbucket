@@ -4,9 +4,9 @@ import argparse
 import logging
 import os
 
-from server import Server
-from config import Config
-from repo import GitRepo
+from bitbucket_cli.server import Server
+from bitbucket_cli.config import Config
+from bitbucket_cli.repo import GitRepo
 
 
 CONFIGFILE = os.path.join(

@@ -2,13 +2,20 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+This project is under development.
+
 # Installation
-Run in the repository root:
 ```
-sudo ln -s $PWD/bitbucket/bitbucket.py /usr/local/bin/bitbucket
+python -m pip install git+https://github.com/sbmueller/bitbucket-cli.git
 ```
 
 ## Dependencies
 - argparse
 - atlassian-python-api
 - gitpython
+
+# Usage
+
+```
+bitbucket --help
+```
