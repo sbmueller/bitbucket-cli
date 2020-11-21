@@ -10,5 +10,6 @@ setup(
     license="MIT",
     packages=["bitbucket_cli"],
     zip_safe=False,
+    install_requires=["argparse", "atlassian-python-api", "gitpython"],
     scripts=["bin/bitbucket"],
 )
